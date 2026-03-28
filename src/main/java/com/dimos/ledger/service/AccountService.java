@@ -48,7 +48,7 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public AccountResponse getAccountById(UUID id) {
+    public AccountResponse getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new AccountNotFoundException(id.toString()));
         verifyChecksum(account);

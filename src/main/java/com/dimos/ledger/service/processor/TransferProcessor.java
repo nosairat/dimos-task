@@ -82,7 +82,7 @@ public class TransferProcessor {
                 .build();
 
         // Step 6 — Acquire write locks ordered by account ID (deadlock prevention)
-        List<UUID> accountIds = List.of(sender.getId(), receiver.getId())
+        List<Long> accountIds = List.of(sender.getId(), receiver.getId())
                 .stream()
                 .sorted()
                 .toList();

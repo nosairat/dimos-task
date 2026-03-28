@@ -13,7 +13,7 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface AccountRepository extends JpaRepository<Account, UUID> {
+public interface AccountRepository extends JpaRepository<Account, Long> {
 
     Optional<Account> findByAccountReference(String accountReference);
 
@@ -25,5 +25,5 @@ public interface AccountRepository extends JpaRepository<Account, UUID> {
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT a FROM Account a WHERE a.id IN :ids ORDER BY a.id ASC")
-    List<Account> findAllByIdInWithLockOrderById(@Param("ids") List<UUID> ids);
+    List<Account> findAllByIdInWithLockOrderById(@Param("ids") List<Long> ids);
 }

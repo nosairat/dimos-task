@@ -8,20 +8,21 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: uuid
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
               - column:
                   name: transaction_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_entries_transaction
                     references: transactions(id)
               - column:
                   name: account_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_entries_account

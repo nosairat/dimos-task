@@ -1,0 +1,15 @@
+databaseChangeLog:
+  - changeSet:
+      id: 005-insert-syp-currency
+      author: dimos
+      changes:
+        - insert:
+            tableName: currencies
+            columns:
+              - column:
+                  name: code
+                  value: SYP
+              - column:
+                  name: name
+                  value: Syrian Pound
+

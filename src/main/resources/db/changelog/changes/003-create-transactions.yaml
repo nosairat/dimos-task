@@ -8,7 +8,8 @@ databaseChangeLog:
             columns:
               - column:
                   name: id
-                  type: uuid
+                  type: BIGINT
+                  autoIncrement: true
                   constraints:
                     primaryKey: true
                     nullable: false
@@ -26,14 +27,14 @@ databaseChangeLog:
                     unique: true
               - column:
                   name: sender_account_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_transactions_sender
                     references: accounts(id)
               - column:
                   name: receiver_account_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_transactions_receiver
@@ -45,7 +46,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: currency_id
-                  type: uuid
+                  type: BIGINT
                   constraints:
                     nullable: false
                     foreignKeyName: fk_transactions_currency
