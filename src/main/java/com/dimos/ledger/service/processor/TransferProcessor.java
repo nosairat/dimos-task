@@ -7,7 +7,8 @@ import com.dimos.ledger.entity.Entry;
 import com.dimos.ledger.entity.Transaction;
 import com.dimos.ledger.entity.enums.TransactionStatus;
 import com.dimos.ledger.entity.enums.TransactionType;
-import com.dimos.ledger.exception.*;
+import com.dimos.ledger.exception.DimosError;
+import com.dimos.ledger.exception.DimosException;
 import com.dimos.ledger.repository.AccountRepository;
 import com.dimos.ledger.repository.EntryRepository;
 import com.dimos.ledger.repository.TransactionRepository;
@@ -35,22 +36,20 @@ public class TransferProcessor {
 
         // Step 1 — Validate correlationId uniqueness
         if (transactionRepository.existsByCorrelationId(request.getCorrelationId())) {
-            throw new DuplicateCorrelationIdException(request.getCorrelationId());
+            throw new DimosException(DimosError.DUPLICATE_CORRELATION_ID, request.getCorrelationId());
         }
 
         // Step 2 — Resolve accounts by reference
         Account sender = accountRepository.findByAccountReference(request.getSenderAccountReference())
-                .orElseThrow(() -> new AccountNotFoundException(request.getSenderAccountReference()));
+                .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, request.getSenderAccountReference()));
 
         Account receiver = accountRepository.findByAccountReference(request.getReceiverAccountReference())
-                .orElseThrow(() -> new AccountNotFoundException(request.getReceiverAccountReference()));
+                .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, request.getReceiverAccountReference()));
 
         // Step 3 — Validate same currency
         if (!sender.getCurrency().getCode().equals(receiver.getCurrency().getCode())) {
-            throw new CurrencyMismatchException(
-                    sender.getCurrency().getCode(),
-                    receiver.getCurrency().getCode()
-            );
+            throw new DimosException(DimosError.CURRENCY_MISMATCH,
+                    sender.getCurrency().getCode() + " vs " + receiver.getCurrency().getCode());
         }
 
         // Step 4 — Verify checksums
@@ -94,7 +93,7 @@ public class TransferProcessor {
 
         // Step 8 — Check for negative balance
         if (sender.getBalance().compareTo(BigDecimal.ZERO) < 0) {
-            throw new InsufficientFundsException(request.getSenderAccountReference());
+            throw new DimosException(DimosError.INSUFFICIENT_FUNDS, request.getSenderAccountReference());
         }
 
         // Step 9 — Recompute checksums
@@ -122,7 +121,7 @@ public class TransferProcessor {
 
     private void verifyChecksum(Account account) {
         if (!checksumService.verify(account.getAccountReference(), account.getBalance(), account.getChecksum())) {
-            throw new AccountIntegrityViolationException(account.getAccountReference());
+            throw new DimosException(DimosError.ACCOUNT_INTEGRITY_VIOLATION, account.getAccountReference());
         }
     }
 }

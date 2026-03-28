@@ -4,9 +4,8 @@ import com.dimos.ledger.dto.request.CreateAccountRequest;
 import com.dimos.ledger.dto.response.AccountResponse;
 import com.dimos.ledger.entity.Account;
 import com.dimos.ledger.entity.Currency;
-import com.dimos.ledger.exception.AccountIntegrityViolationException;
-import com.dimos.ledger.exception.AccountNotFoundException;
-import com.dimos.ledger.exception.CurrencyNotFoundException;
+import com.dimos.ledger.exception.DimosError;
+import com.dimos.ledger.exception.DimosException;
 import com.dimos.ledger.repository.AccountRepository;
 import com.dimos.ledger.repository.CurrencyRepository;
 import com.dimos.ledger.security.ChecksumService;
@@ -29,7 +28,7 @@ public class AccountService {
     @Transactional
     public AccountResponse createAccount(CreateAccountRequest request) {
         Currency currency = currencyRepository.findByCode(request.getCurrencyCode())
-                .orElseThrow(() -> new CurrencyNotFoundException(request.getCurrencyCode()));
+                .orElseThrow(() -> new DimosException(DimosError.CURRENCY_NOT_FOUND, request.getCurrencyCode()));
 
         String accountReference = generateAccountReference();
         BigDecimal initialBalance = BigDecimal.ZERO;
@@ -50,7 +49,7 @@ public class AccountService {
     @Transactional(readOnly = true)
     public AccountResponse getAccountById(Long id) {
         Account account = accountRepository.findById(id)
-                .orElseThrow(() -> new AccountNotFoundException(id.toString()));
+                .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, id.toString()));
         verifyChecksum(account);
         return toResponse(account);
     }
@@ -66,7 +65,7 @@ public class AccountService {
 
     private void verifyChecksum(Account account) {
         if (!checksumService.verify(account.getAccountReference(), account.getBalance(), account.getChecksum())) {
-            throw new AccountIntegrityViolationException(account.getAccountReference());
+            throw new DimosException(DimosError.ACCOUNT_INTEGRITY_VIOLATION, account.getAccountReference());
         }
     }
 

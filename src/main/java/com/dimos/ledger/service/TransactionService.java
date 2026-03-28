@@ -4,7 +4,8 @@ import com.dimos.ledger.dto.request.TransactionHistoryRequest;
 import com.dimos.ledger.dto.request.TransactionInquiryRequest;
 import com.dimos.ledger.dto.response.TransactionResponse;
 import com.dimos.ledger.entity.Transaction;
-import com.dimos.ledger.exception.AccountNotFoundException;
+import com.dimos.ledger.exception.DimosError;
+import com.dimos.ledger.exception.DimosException;
 import com.dimos.ledger.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -35,12 +36,12 @@ public class TransactionService {
 
         if (request.getTransactionReference() != null) {
             transaction = transactionRepository.findByTransactionReference(request.getTransactionReference())
-                    .orElseThrow(() -> new AccountNotFoundException("Transaction not found with reference: "
-                            + request.getTransactionReference()));
+                    .orElseThrow(() -> new DimosException(DimosError.TRANSACTION_NOT_FOUND,
+                            request.getTransactionReference().toString()));
         } else {
             transaction = transactionRepository.findByCorrelationId(request.getCorrelationId())
-                    .orElseThrow(() -> new AccountNotFoundException("Transaction not found with correlationId: "
-                            + request.getCorrelationId()));
+                    .orElseThrow(() -> new DimosException(DimosError.TRANSACTION_NOT_FOUND,
+                            request.getCorrelationId()));
         }
 
         return toResponse(transaction);
