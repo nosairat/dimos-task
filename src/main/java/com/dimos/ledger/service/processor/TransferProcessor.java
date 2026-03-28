@@ -1,22 +1,19 @@
 package com.dimos.ledger.service.processor;
 
-import com.dimos.ledger.dto.request.TransferRequest;
-import com.dimos.ledger.dto.response.TransferResponse;
 import com.dimos.ledger.entity.Account;
 import com.dimos.ledger.entity.Entry;
 import com.dimos.ledger.entity.Transaction;
 import com.dimos.ledger.entity.enums.TransactionStatus;
-import com.dimos.ledger.entity.enums.TransactionType;
 import com.dimos.ledger.exception.DimosError;
 import com.dimos.ledger.exception.DimosException;
+import com.dimos.ledger.model.RequestModel;
+import com.dimos.ledger.model.TransactionModel;
 import com.dimos.ledger.repository.AccountRepository;
 import com.dimos.ledger.repository.EntryRepository;
 import com.dimos.ledger.repository.TransactionRepository;
-import com.dimos.ledger.security.ChecksumService;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -29,10 +26,9 @@ public class TransferProcessor {
     private final AccountRepository accountRepository;
     private final TransactionRepository transactionRepository;
     private final EntryRepository entryRepository;
-    private final ChecksumService checksumService;
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public TransferResponse process(TransferRequest request) {
+    @Transactional
+    public TransactionModel process(RequestModel request) {
 
         // Step 1 — Validate correlationId uniqueness
         if (transactionRepository.existsByCorrelationId(request.getCorrelationId())) {
@@ -40,12 +36,15 @@ public class TransferProcessor {
         }
 
         // Step 2 — Resolve accounts by reference
-        Account sender = accountRepository.findByAccountReference(request.getSenderAccountReference())
+        List<Account> accounts= accountRepository.findByAccountReferenceIn(List.of(request.getSenderAccountReference(),request.getReceiverAccountReference()));
+        Account sender = accounts.stream()
+                .filter(a -> a.getAccountReference().equals(request.getSenderAccountReference()))
+                .findFirst()
                 .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, request.getSenderAccountReference()));
-
-        Account receiver = accountRepository.findByAccountReference(request.getReceiverAccountReference())
+        Account receiver = accounts.stream()
+                .filter(a -> a.getAccountReference().equals(request.getReceiverAccountReference()))
+                .findFirst()
                 .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, request.getReceiverAccountReference()));
-
         // Step 3 — Validate same currency
         if (!sender.getCurrency().getCode().equals(receiver.getCurrency().getCode())) {
             throw new DimosException(DimosError.CURRENCY_MISMATCH,
@@ -61,8 +60,8 @@ public class TransferProcessor {
                 .receiverAccount(receiver)
                 .amount(request.getAmount())
                 .currency(sender.getCurrency())
-                .type(TransactionType.TRANSFER)
-                .status(TransactionStatus.PENDING)
+                .type(request.getTransactionType())
+                .status(TransactionStatus.COMPLETED)
                 .build();
 
         Entry debitEntry = Entry.builder()
@@ -77,40 +76,32 @@ public class TransferProcessor {
                 .amount(request.getAmount())
                 .build();
 
+        List<Entry> entries= List.of(debitEntry, creditEntry);
+
         // Step 6 — Acquire write locks ordered by account ID (deadlock prevention)
-        List<Long> accountIds = List.of(sender.getId(), receiver.getId())
-                .stream()
-                .sorted()
-                .toList();
-        accountRepository.findAllByIdInWithLockOrderById(accountIds);
-
+        accounts = accountRepository.findAllByIdInWithLockOrderById(accounts.stream().map(Account::getId).toList());
         // Step 7 — Apply entries to balances
-        sender.setBalance(sender.getBalance().subtract(request.getAmount()));
-        receiver.setBalance(receiver.getBalance().add(request.getAmount()));
-
-        // Step 8 — Check for negative balance
-        if (sender.getBalance().compareTo(BigDecimal.ZERO) < 0) {
-            throw new DimosException(DimosError.INSUFFICIENT_FUNDS, request.getSenderAccountReference());
-        }
+        accounts.forEach((a)-> {
+            updateAccountAndEntry(a, entries);
+        });
 
 
         // Step 9 — Persist everything
-        transaction.setStatus(TransactionStatus.COMPLETED);
         transactionRepository.save(transaction);
-        entryRepository.save(debitEntry);
-        entryRepository.save(creditEntry);
-        accountRepository.save(sender);
-        accountRepository.save(receiver);
+        accountRepository.saveAll(accounts);
+        entryRepository.saveAll(entries);
 
-        return TransferResponse.builder()
-                .transactionReference(transaction.getTransactionReference())
-                .correlationId(transaction.getCorrelationId())
-                .senderAccountReference(sender.getAccountReference())
-                .receiverAccountReference(receiver.getAccountReference())
-                .amount(transaction.getAmount())
-                .currency(sender.getCurrency().getCode())
-                .status(transaction.getStatus())
-                .build();
+        return new  TransactionModel(transaction,entries);
+    }
+
+    private static void updateAccountAndEntry(Account a, List<Entry> entries) {
+        Entry entry = entries.stream().filter(e -> e.getAccount().getAccountReference().equals(a.getAccountReference())).findAny().orElseThrow();
+        a.setBalance(a.getBalance().add(entry.getAmount()));
+        entry.setUpdatedBalance(a.getBalance());
+
+        if(a.getBalance().compareTo(BigDecimal.ZERO) < 0) {
+            throw new DimosException(DimosError.INSUFFICIENT_FUNDS, a.getAccountReference());
+        }
     }
 
 

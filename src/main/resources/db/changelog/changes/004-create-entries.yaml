@@ -29,11 +29,11 @@ databaseChangeLog:
                     references: accounts(id)
               - column:
                   name: amount
-                  type: decimal(19,4)
+                  type: decimal(19,3)
                   constraints:
                     nullable: false
               - column:
-                  name: created_at
-                  type: timestamp
+                  name: updated_balance
+                  type: decimal(19,3)
                   constraints:
                     nullable: false

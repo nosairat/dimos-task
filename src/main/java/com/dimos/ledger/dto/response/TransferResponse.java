@@ -1,6 +1,7 @@
 package com.dimos.ledger.dto.response;
 
 import com.dimos.ledger.entity.enums.TransactionStatus;
+import com.dimos.ledger.model.TransactionModel;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -12,11 +13,5 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class TransferResponse {
-    private String transactionReference;
-    private String correlationId;
-    private String senderAccountReference;
-    private String receiverAccountReference;
-    private BigDecimal amount;
-    private String currency;
-    private TransactionStatus status;
+    TransactionModel transaction;
 }

@@ -27,14 +27,9 @@ public class Entry {
     @JoinColumn(name = "account_id", nullable = false)
     private Account account;
 
-    @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
+    private BigDecimal updatedBalance;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
 
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-    }
+
 }
