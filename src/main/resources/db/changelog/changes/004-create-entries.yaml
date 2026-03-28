@@ -36,7 +36,3 @@ databaseChangeLog:
                   type: timestamp
                   constraints:
                     nullable: false
-        - addCheckConstraint:
-            constraintName: chk_entries_amount_not_zero
-            tableName: entries
-            constraintBody: "amount != 0"
