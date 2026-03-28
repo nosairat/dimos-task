@@ -30,10 +30,14 @@ public class TransferProcessor {
     @Transactional
     public TransactionModel process(RequestModel request) {
 
-        // Step 1 — Validate correlationId uniqueness
+        // Step 1 — Validate correlationId uniqueness& sender is not same as receiver
         if (transactionRepository.existsByCorrelationId(request.getCorrelationId())) {
             throw new DimosException(DimosError.DUPLICATE_CORRELATION_ID, request.getCorrelationId());
         }
+        if (request.getSenderAccountReference().equals(request.getReceiverAccountReference())) {
+            throw new DimosException(DimosError.SENDER_IS_SAME_AS_RECEIVER, request.getSenderAccountReference());
+        }
+
 
         // Step 2 — Resolve accounts by reference
         List<Account> accounts= accountRepository.findByAccountReferenceIn(List.of(request.getSenderAccountReference(),request.getReceiverAccountReference()));

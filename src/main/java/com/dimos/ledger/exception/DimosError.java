@@ -9,6 +9,7 @@ public enum DimosError {
     ACCOUNT_NOT_FOUND("Account not found", "435"),
     ACCOUNT_INTEGRITY_VIOLATION("Account checksum integrity violation", "417"),
     DUPLICATE_CORRELATION_ID("Duplicate correlationId detected", "409"),
+    SENDER_IS_SAME_AS_RECEIVER("Sender account is same as receiver account", "410"),
     TRANSACTION_NOT_FOUND("Transaction not found", "455");
 
     @Getter

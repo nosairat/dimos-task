@@ -10,10 +10,6 @@ public class DimosException extends RuntimeException {
         this.detail = detail;
     }
 
-    public DimosException(DimosError dimosError) {
-        this(dimosError, null);
-    }
-
     public DimosError getDimosError() {
         return dimosError;
     }
