@@ -1,5 +1,6 @@
 package com.dimos.ledger.entity;
 
+import com.dimos.ledger.security.AccountsPrePersistListener;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,13 +15,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@EntityListeners(AccountsPrePersistListener.class)
 public class Account {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")
     private String userId;
 
     @Column(name = "account_reference", nullable = false, unique = true, length = 50)

@@ -32,14 +32,12 @@ public class AccountService {
 
         String accountReference = generateAccountReference();
         BigDecimal initialBalance = BigDecimal.ZERO;
-        String checksum = checksumService.compute(accountReference, initialBalance);
 
         Account account = Account.builder()
                 .userId(request.getUserId())
                 .accountReference(accountReference)
                 .currency(currency)
                 .balance(initialBalance)
-                .checksum(checksum)
                 .build();
 
         Account saved = accountRepository.save(account);
@@ -50,7 +48,6 @@ public class AccountService {
     public AccountResponse getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, id.toString()));
-        verifyChecksum(account);
         return toResponse(account);
     }
 
@@ -58,16 +55,11 @@ public class AccountService {
     public List<AccountResponse> getAccountsByUserId(String userId) {
         return accountRepository.findAllByUserId(userId)
                 .stream()
-                .peek(this::verifyChecksum)
                 .map(this::toResponse)
                 .toList();
     }
 
-    private void verifyChecksum(Account account) {
-        if (!checksumService.verify(account.getAccountReference(), account.getBalance(), account.getChecksum())) {
-            throw new DimosException(DimosError.ACCOUNT_INTEGRITY_VIOLATION, account.getAccountReference());
-        }
-    }
+
 
     private String generateAccountReference() {
         return "ACC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();

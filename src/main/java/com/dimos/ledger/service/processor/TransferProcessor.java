@@ -52,9 +52,6 @@ public class TransferProcessor {
                     sender.getCurrency().getCode() + " vs " + receiver.getCurrency().getCode());
         }
 
-        // Step 4 — Verify checksums
-        verifyChecksum(sender);
-        verifyChecksum(receiver);
 
         // Step 5 — Build transaction and entries
         Transaction transaction = Transaction.builder()
@@ -96,11 +93,8 @@ public class TransferProcessor {
             throw new DimosException(DimosError.INSUFFICIENT_FUNDS, request.getSenderAccountReference());
         }
 
-        // Step 9 — Recompute checksums
-        sender.setChecksum(checksumService.compute(sender.getAccountReference(), sender.getBalance()));
-        receiver.setChecksum(checksumService.compute(receiver.getAccountReference(), receiver.getBalance()));
 
-        // Step 10 — Persist everything
+        // Step 9 — Persist everything
         transaction.setStatus(TransactionStatus.COMPLETED);
         transactionRepository.save(transaction);
         entryRepository.save(debitEntry);
@@ -119,9 +113,5 @@ public class TransferProcessor {
                 .build();
     }
 
-    private void verifyChecksum(Account account) {
-        if (!checksumService.verify(account.getAccountReference(), account.getBalance(), account.getChecksum())) {
-            throw new DimosException(DimosError.ACCOUNT_INTEGRITY_VIOLATION, account.getAccountReference());
-        }
-    }
+
 }
