@@ -44,14 +44,12 @@ public class AccountService {
         return toResponse(saved);
     }
 
-    @Transactional(readOnly = true)
     public AccountResponse getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, id.toString()));
         return toResponse(account);
     }
 
-    @Transactional(readOnly = true)
     public List<AccountResponse> getAccountsByUserId(String userId) {
         return accountRepository.findAllByUserId(userId)
                 .stream()
