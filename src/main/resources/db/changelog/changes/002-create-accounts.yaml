@@ -1,0 +1,53 @@
+databaseChangeLog:
+  - changeSet:
+      id: 002-create-accounts
+      author: dimos
+      changes:
+        - createTable:
+            tableName: accounts
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: account_reference
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: currency_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_accounts_currency
+                    references: currencies(id)
+              - column:
+                  name: balance
+                  type: decimal(19,4)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: checksum
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false

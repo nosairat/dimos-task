@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: 004-create-entries
+      author: dimos
+      changes:
+        - createTable:
+            tableName: entries
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: transaction_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_entries_transaction
+                    references: transactions(id)
+              - column:
+                  name: account_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_entries_account
+                    references: accounts(id)
+              - column:
+                  name: amount
+                  type: decimal(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+        - addCheckConstraint:
+            constraintName: chk_entries_amount_not_zero
+            tableName: entries
+            constraintBody: "amount != 0"

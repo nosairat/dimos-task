@@ -1,0 +1,67 @@
+databaseChangeLog:
+  - changeSet:
+      id: 003-create-transactions
+      author: dimos
+      changes:
+        - createTable:
+            tableName: transactions
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: transaction_reference
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: correlation_id
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: sender_account_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_transactions_sender
+                    references: accounts(id)
+              - column:
+                  name: receiver_account_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_transactions_receiver
+                    references: accounts(id)
+              - column:
+                  name: amount
+                  type: decimal(19,4)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: currency_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_transactions_currency
+                    references: currencies(id)
+              - column:
+                  name: type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false

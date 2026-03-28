@@ -1,0 +1,30 @@
+spring:
+  application:
+    name: dimos-ledger
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ledger_db
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    open-in-view: false
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+
+ledger:
+  checksum:
+    secret: ${CHECKSUM_SECRET:change-me-in-production}
+
+server:
+  port: 8080

@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: 001-create-currencies
+      author: dimos
+      changes:
+        - createTable:
+            tableName: currencies
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: code
+                  type: varchar(10)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: name
+                  type: varchar(100)
+                  constraints:
+                    nullable: false
