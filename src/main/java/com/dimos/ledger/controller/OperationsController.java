@@ -3,7 +3,6 @@ package com.dimos.ledger.controller;
 import com.dimos.ledger.dto.request.TransferRequest;
 import com.dimos.ledger.dto.response.TransferResponse;
 import com.dimos.ledger.service.OperationService;
-import com.dimos.ledger.service.processor.TransferProcessor;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
