@@ -12,9 +12,8 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class AccountResponse {
-    private Long accountId;
     private String accountReference;
-    private UUID userId;
+    private String userId;
     private String currencyCode;
     private BigDecimal balance;
     private LocalDateTime createdAt;

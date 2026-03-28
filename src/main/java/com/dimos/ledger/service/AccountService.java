@@ -76,7 +76,6 @@ public class AccountService {
 
     private AccountResponse toResponse(Account account) {
         return AccountResponse.builder()
-                .accountId(account.getId())
                 .accountReference(account.getAccountReference())
                 .userId(account.getUserId())
                 .currencyCode(account.getCurrency().getCode())

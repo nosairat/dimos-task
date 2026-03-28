@@ -15,7 +15,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: user_id
-                  type: uuid
+                  type: varchar(50)
                   constraints:
                     nullable: false
               - column:

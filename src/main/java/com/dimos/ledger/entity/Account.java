@@ -21,7 +21,7 @@ public class Account {
     private Long id;
 
     @Column(name = "user_id", nullable = false)
-    private UUID userId;
+    private String userId;
 
     @Column(name = "account_reference", nullable = false, unique = true, length = 50)
     private String accountReference;

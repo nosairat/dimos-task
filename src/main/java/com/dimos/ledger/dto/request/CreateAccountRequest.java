@@ -14,7 +14,7 @@ import java.util.UUID;
 public class CreateAccountRequest {
 
     @NotNull(message = "userId is required")
-    private UUID userId;
+    private String userId;
 
     @NotBlank(message = "currencyCode is required")
     private String currencyCode;
