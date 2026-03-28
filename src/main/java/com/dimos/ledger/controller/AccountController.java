@@ -30,7 +30,7 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AccountResponse>> getAccountsByUserId(@RequestParam UUID userId) {
+    public ResponseEntity<List<AccountResponse>> getAccountsByUserId(@RequestParam String userId) {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
     }
 }

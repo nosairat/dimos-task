@@ -23,7 +23,7 @@ public class Transaction {
     private Long id;
 
     @Column(name = "transaction_reference", nullable = false, unique = true)
-    private UUID transactionReference;
+    private String transactionReference;
 
     @Column(name = "correlation_id", nullable = false, unique = true, length = 255)
     private String correlationId;

@@ -59,7 +59,7 @@ public class TransferProcessor {
 
         // Step 5 — Build transaction and entries
         Transaction transaction = Transaction.builder()
-                .transactionReference(UUID.randomUUID())
+                .transactionReference(UUID.randomUUID().toString())
                 .correlationId(request.getCorrelationId())
                 .senderAccount(sender)
                 .receiverAccount(receiver)

@@ -18,7 +18,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
 
     boolean existsByCorrelationId(String correlationId);
 
-    Optional<Transaction> findByTransactionReference(UUID transactionReference);
+    Optional<Transaction> findByTransactionReference(String transactionReference);
 
     Optional<Transaction> findByCorrelationId(String correlationId);
 

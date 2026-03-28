@@ -12,7 +12,7 @@ import java.util.UUID;
 @AllArgsConstructor
 @Builder
 public class TransferResponse {
-    private UUID transactionReference;
+    private String transactionReference;
     private String correlationId;
     private String senderAccountReference;
     private String receiverAccountReference;

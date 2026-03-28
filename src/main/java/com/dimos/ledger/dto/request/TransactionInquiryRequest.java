@@ -3,8 +3,6 @@ package com.dimos.ledger.dto.request;
 import jakarta.validation.constraints.AssertTrue;
 import lombok.*;
 
-import java.util.UUID;
-
 @Getter
 @Setter
 @NoArgsConstructor
@@ -12,7 +10,7 @@ import java.util.UUID;
 @Builder
 public class TransactionInquiryRequest {
 
-    private UUID transactionReference;
+    private String transactionReference;
     private String correlationId;
 
     @AssertTrue(message = "Either transactionReference or correlationId must be provided")

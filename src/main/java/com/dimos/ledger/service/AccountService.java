@@ -56,7 +56,7 @@ public class AccountService {
     }
 
     @Transactional(readOnly = true)
-    public List<AccountResponse> getAccountsByUserId(UUID userId) {
+    public List<AccountResponse> getAccountsByUserId(String userId) {
         return accountRepository.findAllByUserId(userId)
                 .stream()
                 .peek(this::verifyChecksum)
