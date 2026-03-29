@@ -8,7 +8,7 @@ import com.dimos.ledger.entity.enums.TransactionStatus;
 import com.dimos.ledger.entity.enums.TransactionType;
 import com.dimos.ledger.exception.DimosError;
 import com.dimos.ledger.exception.DimosException;
-import com.dimos.ledger.model.RequestModel;
+import com.dimos.ledger.model.TransferRequest;
 import com.dimos.ledger.model.TransactionModel;
 import com.dimos.ledger.repository.AccountRepository;
 import com.dimos.ledger.repository.EntryRepository;
@@ -69,7 +69,7 @@ class TransferProcessorTest {
 
     @Test
     void process_happyPath_returnsTransactionModelAndUpdatesBalances() {
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("500.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("500.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
         when(accountRepository.findByAccountReferenceIn(anyList())).thenReturn(List.of(sender, receiver));
@@ -95,7 +95,7 @@ class TransferProcessorTest {
 
     @Test
     void process_happyPath_createsDoubleEntryRecords() {
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId(anyString())).thenReturn(false);
         when(accountRepository.findByAccountReferenceIn(anyList())).thenReturn(List.of(sender, receiver));
@@ -127,7 +127,7 @@ class TransferProcessorTest {
 
     @Test
     void process_duplicateCorrelationId_throwsDimosException() {
-        RequestModel request = buildRequest("duplicate-corr", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("duplicate-corr", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId("duplicate-corr")).thenReturn(true);
 
@@ -141,7 +141,7 @@ class TransferProcessorTest {
 
     @Test
     void process_senderSameAsReceiver_throwsDimosException() {
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-SENDER01", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-SENDER01", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
 
@@ -155,7 +155,7 @@ class TransferProcessorTest {
 
     @Test
     void process_senderAccountNotFound_throwsDimosException() {
-        RequestModel request = buildRequest("corr-001", "ACC-UNKNOWN", "ACC-RECV0001", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-UNKNOWN", "ACC-RECV0001", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
         // Only receiver is returned — sender is missing
@@ -169,7 +169,7 @@ class TransferProcessorTest {
 
     @Test
     void process_receiverAccountNotFound_throwsDimosException() {
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-UNKNOWN", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-UNKNOWN", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
         // Only sender is returned — receiver is missing
@@ -191,7 +191,7 @@ class TransferProcessorTest {
                 .balance(BigDecimal.ZERO)
                 .build();
 
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
         when(accountRepository.findByAccountReferenceIn(anyList())).thenReturn(List.of(sender, usdReceiver));
@@ -206,7 +206,7 @@ class TransferProcessorTest {
     void process_insufficientFunds_throwsDimosException() {
         // Sender only has 100, trying to transfer 500
         sender.setBalance(new BigDecimal("100.0000"));
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("500.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("500.0000"));
 
         when(transactionRepository.existsByCorrelationId("corr-001")).thenReturn(false);
         when(accountRepository.findByAccountReferenceIn(anyList())).thenReturn(List.of(sender, receiver));
@@ -222,7 +222,7 @@ class TransferProcessorTest {
 
     @Test
     void process_happyPath_transactionTypeIsSetCorrectly() {
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("100.0000"));
         request.setTransactionType(TransactionType.TRANSFER);
 
         when(transactionRepository.existsByCorrelationId(anyString())).thenReturn(false);
@@ -242,7 +242,7 @@ class TransferProcessorTest {
         sender.setBalance(new BigDecimal("1000.0000"));
         receiver.setBalance(new BigDecimal("200.0000"));
 
-        RequestModel request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("300.0000"));
+        TransferRequest request = buildRequest("corr-001", "ACC-SENDER01", "ACC-RECV0001", new BigDecimal("300.0000"));
 
         when(transactionRepository.existsByCorrelationId(anyString())).thenReturn(false);
         when(accountRepository.findByAccountReferenceIn(anyList())).thenReturn(List.of(sender, receiver));
@@ -265,8 +265,8 @@ class TransferProcessorTest {
         assertThat(receiverEntry.getUpdatedBalance()).isEqualByComparingTo(new BigDecimal("500.0000"));
     }
 
-    private RequestModel buildRequest(String correlationId, String senderRef, String receiverRef, BigDecimal amount) {
-        return RequestModel.builder()
+    private TransferRequest buildRequest(String correlationId, String senderRef, String receiverRef, BigDecimal amount) {
+        return TransferRequest.builder()
                 .correlationId(correlationId)
                 .senderAccountReference(senderRef)
                 .receiverAccountReference(receiverRef)

@@ -3,7 +3,7 @@ package com.dimos.ledger.service;
 import com.dimos.ledger.dto.request.TransferDtoReq;
 import com.dimos.ledger.dto.response.TransferDtoRes;
 import com.dimos.ledger.entity.enums.TransactionType;
-import com.dimos.ledger.model.RequestModel;
+import com.dimos.ledger.model.TransferRequest;
 import com.dimos.ledger.model.TransactionModel;
 import com.dimos.ledger.service.processor.TransferProcessor;
 import org.junit.jupiter.api.Test;
@@ -38,14 +38,14 @@ class OperationServiceTest {
                 .build();
 
         TransactionModel transactionModel = mock(TransactionModel.class);
-        when(transferProcessor.process(any(RequestModel.class))).thenReturn(transactionModel);
+        when(transferProcessor.process(any(TransferRequest.class))).thenReturn(transactionModel);
 
         operationService.transfer(request);
 
-        ArgumentCaptor<RequestModel> captor = ArgumentCaptor.forClass(RequestModel.class);
+        ArgumentCaptor<TransferRequest> captor = ArgumentCaptor.forClass(TransferRequest.class);
         verify(transferProcessor).process(captor.capture());
 
-        RequestModel captured = captor.getValue();
+        TransferRequest captured = captor.getValue();
         assertThat(captured.getCorrelationId()).isEqualTo("corr-001");
         assertThat(captured.getSenderAccountReference()).isEqualTo("ACC-SENDER01");
         assertThat(captured.getReceiverAccountReference()).isEqualTo("ACC-RECV0001");
@@ -63,7 +63,7 @@ class OperationServiceTest {
                 .build();
 
         TransactionModel transactionModel = mock(TransactionModel.class);
-        when(transferProcessor.process(any(RequestModel.class))).thenReturn(transactionModel);
+        when(transferProcessor.process(any(TransferRequest.class))).thenReturn(transactionModel);
 
         TransferDtoRes response = operationService.transfer(request);
 
@@ -80,10 +80,10 @@ class OperationServiceTest {
                 .amount(new BigDecimal("100.0000"))
                 .build();
 
-        when(transferProcessor.process(any(RequestModel.class))).thenReturn(mock(TransactionModel.class));
+        when(transferProcessor.process(any(TransferRequest.class))).thenReturn(mock(TransactionModel.class));
 
         operationService.transfer(request);
 
-        verify(transferProcessor, times(1)).process(any(RequestModel.class));
+        verify(transferProcessor, times(1)).process(any(TransferRequest.class));
     }
 }
