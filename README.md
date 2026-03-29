@@ -170,3 +170,10 @@ All amounts are stored with a fixed 4 decimal places regardless of currency. A p
 
 ### Transaction History & Inquiry
 The service layer has `TransactionService` with history and inquiry logic, but no REST endpoints are exposed for it yet. The DTOs (`TransactionHistoryRequest`, `TransactionInquiryRequest`) are defined but not wired to a controller.
+
+### Structured Request/Response Logging
+No HTTP-level logging filter exists. A production system would need:
+- A servlet filter or Spring `HandlerInterceptor` that logs each inbound request (URL, headers, body) and the outbound response (status, body)
+- Sensitive fields masked before logging — e.g. account references, amounts should be partially redacted and any auth headers (e.g. `Authorization`, `Cookie`) fully masked
+- A `requestId` (generated per HTTP request, e.g. UUID) and the business `correlationId` injected into the MDC (`org.slf4j.MDC`) at the start of each request so every log line emitted during that request automatically carries both fields
+- The MDC context cleared at the end of the request to prevent leakage across threads in a thread-pool environment
