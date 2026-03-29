@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @Setter
 @Accessors(chain = true)
 @Builder
-public class RequestModel {
+public class TransferRequest {
     private String correlationId;
     private String senderAccountReference;
     private String receiverAccountReference;

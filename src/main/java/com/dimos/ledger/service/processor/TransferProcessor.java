@@ -6,7 +6,7 @@ import com.dimos.ledger.entity.Transaction;
 import com.dimos.ledger.entity.enums.TransactionStatus;
 import com.dimos.ledger.exception.DimosError;
 import com.dimos.ledger.exception.DimosException;
-import com.dimos.ledger.model.RequestModel;
+import com.dimos.ledger.model.TransferRequest;
 import com.dimos.ledger.model.TransactionModel;
 import com.dimos.ledger.repository.AccountRepository;
 import com.dimos.ledger.repository.EntryRepository;
@@ -28,7 +28,7 @@ public class TransferProcessor {
     private final EntryRepository entryRepository;
 
     @Transactional
-    public TransactionModel process(RequestModel request) {
+    public TransactionModel process(TransferRequest request) {
 
         // Step 1 — Validate correlationId uniqueness& sender is not same as receiver
         if (transactionRepository.existsByCorrelationId(request.getCorrelationId())) {
