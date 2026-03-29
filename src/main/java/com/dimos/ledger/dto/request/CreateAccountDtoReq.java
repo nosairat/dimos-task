@@ -10,7 +10,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CreateAccountRequest {
+public class CreateAccountDtoReq {
 
     @NotNull(message = "userId is required")
     private String userId;

@@ -1,7 +1,7 @@
 package com.dimos.ledger.service;
 
-import com.dimos.ledger.dto.request.CreateAccountRequest;
-import com.dimos.ledger.dto.response.AccountResponse;
+import com.dimos.ledger.dto.request.CreateAccountDtoReq;
+import com.dimos.ledger.dto.response.AccountDtoRes;
 import com.dimos.ledger.entity.Account;
 import com.dimos.ledger.entity.Currency;
 import com.dimos.ledger.exception.DimosError;
@@ -26,7 +26,7 @@ public class AccountService {
     private final ChecksumService checksumService;
 
     @Transactional
-    public AccountResponse createAccount(CreateAccountRequest request) {
+    public AccountDtoRes createAccount(CreateAccountDtoReq request) {
         Currency currency = currencyRepository.findByCode(request.getCurrencyCode())
                 .orElseThrow(() -> new DimosException(DimosError.CURRENCY_NOT_FOUND, request.getCurrencyCode()));
 
@@ -44,13 +44,13 @@ public class AccountService {
         return toResponse(saved);
     }
 
-    public AccountResponse getAccountById(Long id) {
+    public AccountDtoRes getAccountById(Long id) {
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new DimosException(DimosError.ACCOUNT_NOT_FOUND, id.toString()));
         return toResponse(account);
     }
 
-    public List<AccountResponse> getAccountsByUserId(String userId) {
+    public List<AccountDtoRes> getAccountsByUserId(String userId) {
         return accountRepository.findAllByUserId(userId)
                 .stream()
                 .map(this::toResponse)
@@ -63,8 +63,8 @@ public class AccountService {
         return "ACC-" + UUID.randomUUID().toString().substring(0, 8).toUpperCase();
     }
 
-    private AccountResponse toResponse(Account account) {
-        return AccountResponse.builder()
+    private AccountDtoRes toResponse(Account account) {
+        return AccountDtoRes.builder()
                 .accountReference(account.getAccountReference())
                 .userId(account.getUserId())
                 .currencyCode(account.getCurrency().getCode())

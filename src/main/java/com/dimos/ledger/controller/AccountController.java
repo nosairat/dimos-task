@@ -1,7 +1,7 @@
 package com.dimos.ledger.controller;
 
-import com.dimos.ledger.dto.request.CreateAccountRequest;
-import com.dimos.ledger.dto.response.AccountResponse;
+import com.dimos.ledger.dto.request.CreateAccountDtoReq;
+import com.dimos.ledger.dto.response.AccountDtoRes;
 import com.dimos.ledger.service.AccountService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,18 +19,18 @@ public class AccountController {
     private final AccountService accountService;
 
     @PostMapping
-    public ResponseEntity<AccountResponse> createAccount(@Valid @RequestBody CreateAccountRequest request) {
+    public ResponseEntity<AccountDtoRes> createAccount(@Valid @RequestBody CreateAccountDtoReq request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(accountService.createAccount(request));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<AccountResponse> getAccountById(@PathVariable Long id) {
+    public ResponseEntity<AccountDtoRes> getAccountById(@PathVariable Long id) {
         return ResponseEntity.ok(accountService.getAccountById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<AccountResponse>> getAccountsByUserId(@RequestParam String userId) {
+    public ResponseEntity<List<AccountDtoRes>> getAccountsByUserId(@RequestParam String userId) {
         return ResponseEntity.ok(accountService.getAccountsByUserId(userId));
     }
 }

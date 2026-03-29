@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class AccountResponse {
+public class AccountDtoRes {
     private String accountReference;
     private String userId;
     private String currencyCode;

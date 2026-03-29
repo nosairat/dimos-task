@@ -1,7 +1,7 @@
 package com.dimos.ledger.integration;
 
-import com.dimos.ledger.dto.request.CreateAccountRequest;
-import com.dimos.ledger.dto.request.TransferRequest;
+import com.dimos.ledger.dto.request.CreateAccountDtoReq;
+import com.dimos.ledger.dto.request.TransferDtoReq;
 import com.dimos.ledger.entity.Account;
 import com.dimos.ledger.entity.Currency;
 import com.dimos.ledger.repository.AccountRepository;
@@ -36,7 +36,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @BeforeEach
     void createReceiverAccount() throws Exception {
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("receiver-" + UUID.randomUUID())
                 .currencyCode("SYP")
                 .build();
@@ -51,7 +51,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_happyPath_returns201WithTransactionModel() throws Exception {
-        TransferRequest request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "100.00");
+        TransferDtoReq request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "100.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -70,7 +70,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
         BigDecimal topupBefore = accountRepository
                 .findByAccountReference(TOPUP_ACCOUNT).orElseThrow().getBalance();
 
-        TransferRequest request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "250.00");
+        TransferDtoReq request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "250.00");
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
@@ -87,7 +87,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_duplicateCorrelationId_returns400() throws Exception {
-        TransferRequest request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "50.00");
+        TransferDtoReq request = buildTransferRequest(TOPUP_ACCOUNT, receiverAccountReference, "50.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -102,7 +102,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_senderSameAsReceiver_returns400() throws Exception {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .correlationId(UUID.randomUUID().toString())
                 .senderAccountReference(receiverAccountReference)
                 .receiverAccountReference(receiverAccountReference)
@@ -119,7 +119,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
     @Test
     void transfer_insufficientFunds_returns400() throws Exception {
         // receiverAccountReference has zero balance — use it as sender
-        TransferRequest request = buildTransferRequest(receiverAccountReference, TOPUP_ACCOUNT, "500.00");
+        TransferDtoReq request = buildTransferRequest(receiverAccountReference, TOPUP_ACCOUNT, "500.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -130,7 +130,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_senderAccountNotFound_returns400() throws Exception {
-        TransferRequest request = buildTransferRequest("ACC-NONEXISTENT", receiverAccountReference, "100.00");
+        TransferDtoReq request = buildTransferRequest("ACC-NONEXISTENT", receiverAccountReference, "100.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +141,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_receiverAccountNotFound_returns400() throws Exception {
-        TransferRequest request = buildTransferRequest(TOPUP_ACCOUNT, "ACC-NONEXISTENT", "100.00");
+        TransferDtoReq request = buildTransferRequest(TOPUP_ACCOUNT, "ACC-NONEXISTENT", "100.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -164,7 +164,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
                 .balance(new BigDecimal("5000.00"))
                 .build());
 
-        TransferRequest request = buildTransferRequest(TOPUP_ACCOUNT, usdAccount.getAccountReference(), "100.00");
+        TransferDtoReq request = buildTransferRequest(TOPUP_ACCOUNT, usdAccount.getAccountReference(), "100.00");
 
         mockMvc.perform(post("/api/v1/operations/transfer")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -175,7 +175,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_missingCorrelationId_returns400WithValidationError() throws Exception {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .senderAccountReference(TOPUP_ACCOUNT)
                 .receiverAccountReference(receiverAccountReference)
                 .amount(new BigDecimal("100.00"))
@@ -190,7 +190,7 @@ class OperationsControllerIT extends BaseIntegrationTest {
 
     @Test
     void transfer_zeroAmount_returns400WithValidationError() throws Exception {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .correlationId(UUID.randomUUID().toString())
                 .senderAccountReference(TOPUP_ACCOUNT)
                 .receiverAccountReference(receiverAccountReference)
@@ -204,8 +204,8 @@ class OperationsControllerIT extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.error", is("VALIDATION_ERROR")));
     }
 
-    private TransferRequest buildTransferRequest(String sender, String receiver, String amount) {
-        return TransferRequest.builder()
+    private TransferDtoReq buildTransferRequest(String sender, String receiver, String amount) {
+        return TransferDtoReq.builder()
                 .correlationId(UUID.randomUUID().toString())
                 .senderAccountReference(sender)
                 .receiverAccountReference(receiver)

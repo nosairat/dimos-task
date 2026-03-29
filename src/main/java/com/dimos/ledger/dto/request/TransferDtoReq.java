@@ -12,7 +12,7 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class TransferRequest {
+public class TransferDtoReq {
 
     @NotBlank(message = "correlationId is required")
     private String correlationId;

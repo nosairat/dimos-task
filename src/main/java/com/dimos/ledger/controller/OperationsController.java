@@ -1,7 +1,7 @@
 package com.dimos.ledger.controller;
 
-import com.dimos.ledger.dto.request.TransferRequest;
-import com.dimos.ledger.dto.response.TransferResponse;
+import com.dimos.ledger.dto.request.TransferDtoReq;
+import com.dimos.ledger.dto.response.TransferDtoRes;
 import com.dimos.ledger.service.OperationService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ public class OperationsController {
     private final OperationService operationService;
 
     @PostMapping("/transfer")
-    public ResponseEntity<TransferResponse> transfer(@Valid @RequestBody TransferRequest request) {
+    public ResponseEntity<TransferDtoRes> transfer(@Valid @RequestBody TransferDtoReq request) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(operationService.transfer(request));
     }

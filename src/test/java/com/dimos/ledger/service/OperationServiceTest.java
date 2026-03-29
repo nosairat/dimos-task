@@ -1,8 +1,7 @@
 package com.dimos.ledger.service;
 
-import com.dimos.ledger.dto.request.TransferRequest;
-import com.dimos.ledger.dto.response.TransferResponse;
-import com.dimos.ledger.entity.enums.TransactionStatus;
+import com.dimos.ledger.dto.request.TransferDtoReq;
+import com.dimos.ledger.dto.response.TransferDtoRes;
 import com.dimos.ledger.entity.enums.TransactionType;
 import com.dimos.ledger.model.RequestModel;
 import com.dimos.ledger.model.TransactionModel;
@@ -31,7 +30,7 @@ class OperationServiceTest {
 
     @Test
     void transfer_buildsRequestModelWithCorrectFields() {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .correlationId("corr-001")
                 .senderAccountReference("ACC-SENDER01")
                 .receiverAccountReference("ACC-RECV0001")
@@ -56,7 +55,7 @@ class OperationServiceTest {
 
     @Test
     void transfer_returnsTransferResponseWithTransactionModel() {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .correlationId("corr-001")
                 .senderAccountReference("ACC-SENDER01")
                 .receiverAccountReference("ACC-RECV0001")
@@ -66,7 +65,7 @@ class OperationServiceTest {
         TransactionModel transactionModel = mock(TransactionModel.class);
         when(transferProcessor.process(any(RequestModel.class))).thenReturn(transactionModel);
 
-        TransferResponse response = operationService.transfer(request);
+        TransferDtoRes response = operationService.transfer(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getTransaction()).isSameAs(transactionModel);
@@ -74,7 +73,7 @@ class OperationServiceTest {
 
     @Test
     void transfer_delegatesToTransferProcessor() {
-        TransferRequest request = TransferRequest.builder()
+        TransferDtoReq request = TransferDtoReq.builder()
                 .correlationId("corr-001")
                 .senderAccountReference("ACC-SENDER01")
                 .receiverAccountReference("ACC-RECV0001")

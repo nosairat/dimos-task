@@ -1,6 +1,6 @@
 package com.dimos.ledger.integration;
 
-import com.dimos.ledger.dto.request.CreateAccountRequest;
+import com.dimos.ledger.dto.request.CreateAccountDtoReq;
 import com.dimos.ledger.repository.AccountRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -23,7 +23,7 @@ class AccountControllerIT extends BaseIntegrationTest {
 
     @Test
     void createAccount_validRequest_returns201WithAccountResponse() throws Exception {
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-" + UUID.randomUUID())
                 .currencyCode("SYP")
                 .build();
@@ -41,7 +41,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     @Test
     void createAccount_persistsAccountInDatabase() throws Exception {
         String userId = "user-" + UUID.randomUUID();
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId(userId).currencyCode("SYP").build();
 
         String responseBody = mockMvc.perform(post("/api/v1/accounts")
@@ -56,7 +56,7 @@ class AccountControllerIT extends BaseIntegrationTest {
 
     @Test
     void createAccount_unknownCurrency_returns400WithError() throws Exception {
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-" + UUID.randomUUID())
                 .currencyCode("XYZ")
                 .build();
@@ -70,7 +70,7 @@ class AccountControllerIT extends BaseIntegrationTest {
 
     @Test
     void createAccount_missingCurrencyCode_returns400WithValidationError() throws Exception {
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-" + UUID.randomUUID())
                 .currencyCode("")
                 .build();
@@ -85,7 +85,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     @Test
     void getAccountById_existingAccount_returns200() throws Exception {
         String userId = "user-" + UUID.randomUUID();
-        CreateAccountRequest createRequest = CreateAccountRequest.builder()
+        CreateAccountDtoReq createRequest = CreateAccountDtoReq.builder()
                 .userId(userId).currencyCode("SYP").build();
 
         String responseBody = mockMvc.perform(post("/api/v1/accounts")
@@ -112,7 +112,7 @@ class AccountControllerIT extends BaseIntegrationTest {
     @Test
     void getAccountsByUserId_returnsAllAccountsForUser() throws Exception {
         String userId = "user-" + UUID.randomUUID();
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId(userId).currencyCode("SYP").build();
 
         mockMvc.perform(post("/api/v1/accounts")

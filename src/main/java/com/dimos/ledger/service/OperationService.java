@@ -1,7 +1,7 @@
 package com.dimos.ledger.service;
 
-import com.dimos.ledger.dto.request.TransferRequest;
-import com.dimos.ledger.dto.response.TransferResponse;
+import com.dimos.ledger.dto.request.TransferDtoReq;
+import com.dimos.ledger.dto.response.TransferDtoRes;
 import com.dimos.ledger.entity.enums.TransactionType;
 import com.dimos.ledger.model.RequestModel;
 import com.dimos.ledger.service.processor.TransferProcessor;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 public class OperationService {
     final TransferProcessor transferProcessor;
 
-    public TransferResponse transfer(TransferRequest request) {
+    public TransferDtoRes transfer(TransferDtoReq request) {
         RequestModel requestModel = RequestModel.builder()
                 .senderAccountReference(request.getSenderAccountReference())
                 .correlationId(request.getCorrelationId())
@@ -24,7 +24,7 @@ public class OperationService {
                 .build();
         var res=  transferProcessor.process(requestModel);
 
-        return TransferResponse.builder()
+        return TransferDtoRes.builder()
                 .transaction(res)
                 .build();
 

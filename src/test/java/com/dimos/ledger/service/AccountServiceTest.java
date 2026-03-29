@@ -1,7 +1,7 @@
 package com.dimos.ledger.service;
 
-import com.dimos.ledger.dto.request.CreateAccountRequest;
-import com.dimos.ledger.dto.response.AccountResponse;
+import com.dimos.ledger.dto.request.CreateAccountDtoReq;
+import com.dimos.ledger.dto.response.AccountDtoRes;
 import com.dimos.ledger.entity.Account;
 import com.dimos.ledger.entity.Currency;
 import com.dimos.ledger.exception.DimosError;
@@ -43,7 +43,7 @@ class AccountServiceTest {
     @Test
     void createAccount_validCurrency_returnsAccountResponse() {
         Currency currency = Currency.builder().id(1L).code("SYP").name("Syrian Pound").build();
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-1")
                 .currencyCode("SYP")
                 .build();
@@ -60,7 +60,7 @@ class AccountServiceTest {
         when(currencyRepository.findByCode("SYP")).thenReturn(Optional.of(currency));
         when(accountRepository.save(any(Account.class))).thenReturn(savedAccount);
 
-        AccountResponse response = accountService.createAccount(request);
+        AccountDtoRes response = accountService.createAccount(request);
 
         assertThat(response).isNotNull();
         assertThat(response.getUserId()).isEqualTo("user-1");
@@ -71,7 +71,7 @@ class AccountServiceTest {
 
     @Test
     void createAccount_currencyNotFound_throwsDimosException() {
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-1")
                 .currencyCode("USD")
                 .build();
@@ -89,7 +89,7 @@ class AccountServiceTest {
     @Test
     void createAccount_savesAccountWithZeroBalance() {
         Currency currency = Currency.builder().id(1L).code("SYP").name("Syrian Pound").build();
-        CreateAccountRequest request = CreateAccountRequest.builder()
+        CreateAccountDtoReq request = CreateAccountDtoReq.builder()
                 .userId("user-1")
                 .currencyCode("SYP")
                 .build();
@@ -132,7 +132,7 @@ class AccountServiceTest {
 
         when(accountRepository.findById(1L)).thenReturn(Optional.of(account));
 
-        AccountResponse response = accountService.getAccountById(1L);
+        AccountDtoRes response = accountService.getAccountById(1L);
 
         assertThat(response).isNotNull();
         assertThat(response.getAccountReference()).isEqualTo("ACC-ABCD1234");
@@ -165,10 +165,10 @@ class AccountServiceTest {
 
         when(accountRepository.findAllByUserId("user-1")).thenReturn(List.of(account1, account2));
 
-        List<AccountResponse> responses = accountService.getAccountsByUserId("user-1");
+        List<AccountDtoRes> responses = accountService.getAccountsByUserId("user-1");
 
         assertThat(responses).hasSize(2);
-        assertThat(responses).extracting(AccountResponse::getAccountReference)
+        assertThat(responses).extracting(AccountDtoRes::getAccountReference)
                 .containsExactly("ACC-00000001", "ACC-00000002");
     }
 
@@ -176,7 +176,7 @@ class AccountServiceTest {
     void getAccountsByUserId_noAccounts_returnsEmptyList() {
         when(accountRepository.findAllByUserId("user-unknown")).thenReturn(List.of());
 
-        List<AccountResponse> responses = accountService.getAccountsByUserId("user-unknown");
+        List<AccountDtoRes> responses = accountService.getAccountsByUserId("user-unknown");
 
         assertThat(responses).isEmpty();
     }
